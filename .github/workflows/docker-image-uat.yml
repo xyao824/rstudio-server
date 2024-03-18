@@ -25,7 +25,7 @@ jobs:
       run: |
         echo "start building docker image"
         timestamp=$(date +%s)
-        tag = "rstudio-server:${timestamp}"
+        tag="rstudio-server:${timestamp}"
         docker build . --file Dockerfile --tag ${tag}
 
   push-to-ECR:
