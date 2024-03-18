@@ -22,7 +22,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
-      id: build
+    - id: build
       run: |
         echo "start building docker image"
         timestamp=$(date +%s)
@@ -49,8 +49,8 @@ jobs:
         echo "Creating repository if not exist"
         aws ecr describe-repositories --repository-names ${{ env.REPO_NAME }} || aws ecr create-repository --repository-name ${{ env.REPO_NAME }}
         echo "Tagging the docker image"
-        echo "The tag is ${{ steps.build-docker-image.outputs.tag }}"
-        docker tag ${{ steps.build-docker-image.outputs.tag }} ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.REPO_NAME }}
+        echo "The tag is ${{ steps.build.outputs.tag }}"
+        docker tag ${{ steps.build.outputs.tag }} ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.REPO_NAME }}
         echo "Push to AWS ECR"
         docker push ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.PREO_NAME }}
 
