@@ -1,0 +1,70 @@
+{
+    "family": "rstudio-server",
+    "containerDefinitions": [
+        {
+            "name": "rstudio-server",
+            "image": "866706914885.dkr.ecr.ap-southeast-2.amazonaws.com/rstudio-server:latest",
+            "cpu": 0,
+            "portMappings": [
+                {
+                    "name": "8787",
+                    "containerPort": 8787,
+                    "hostPort": 8787,
+                    "protocol": "tcp",
+                    "appProtocol": "http"
+                }
+            ],
+            "essential": true,
+            "environment": [],
+            "mountPoints": [
+                {
+                    "sourceVolume": "rstuido-server-efs",
+                    "containerPath": "/home/rstudio/efs",
+                    "readOnly": false
+                }
+            ],
+            "volumesFrom": [],
+            "secrets": [
+                {
+                    "name": "USER",
+                    "valueFrom": "rstudio-server-user"
+                },
+                {
+                    "name": "PASSWORD",
+                    "valueFrom": "rstudio-server-password"
+                }
+            ],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-create-group": "true",
+                    "awslogs-group": "/ecs/rstudio-server",
+                    "awslogs-region": "ap-southeast-2",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            },
+            "systemControls": []
+        }
+    ],
+    "executionRoleArn": "arn:aws:iam::866706914885:role/ecsTaskExecutionRole",
+    "networkMode": "awsvpc",
+    "volumes": [
+        {
+            "name": "rstuido-server-efs",
+            "efsVolumeConfiguration": {
+                "fileSystemId": "fs-0f5418d74eef4d846",
+                "rootDirectory": "/",
+                "transitEncryption": "ENABLED"
+            }
+        }
+    ],
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "cpu": "1024",
+    "memory": "3072",
+    "runtimePlatform": {
+        "cpuArchitecture": "X86_64",
+        "operatingSystemFamily": "LINUX"
+    }
+}
