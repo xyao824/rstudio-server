@@ -33,7 +33,7 @@ jobs:
 
   push-to-ECR:
     name: Push docker image to AWS ECR
-    needs: build-docker-image
+    needs: build
     runs-on: ubuntu-latest
 
     steps:
