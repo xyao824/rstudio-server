@@ -28,6 +28,7 @@ jobs:
         timestamp=$(date +%s)
         tag="rstudio-server:${timestamp}"
         docker build . --file Dockerfile --tag ${tag}
+        echo "::set-output name=tag::${tag}"
         echo "tag=${tag}" >> $GITHUB_OUTPUT
 
   push-to-ECR:
@@ -49,7 +50,7 @@ jobs:
         echo "Creating repository if not exist"
         aws ecr describe-repositories --repository-names ${{ env.REPO_NAME }} || aws ecr create-repository --repository-name ${{ env.REPO_NAME }}
         echo "Tagging the docker image"
-        echo "The tag is ${{ GITHUB_OUTPUT }}"
+        echo "The tag is ${{ steps.build.outputs.tag }}"
         docker tag ${tag} ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.REPO_NAME }}
         echo "Push to AWS ECR"
         docker push ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.PREO_NAME }}
