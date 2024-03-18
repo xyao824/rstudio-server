@@ -28,7 +28,11 @@ jobs:
         timestamp=$(date +%s)
         tag="rstudio-server:${timestamp}"
         docker build . --file Dockerfile --tag ${tag}
-        echo "tag=${tag}" >> $GITHUB_OUTPUT
+        echo "::set-output name=tag::${tag}"
+        {# echo "tag=${tag}" >> $GITHUB_OUTPUT #}
+    
+    outputs:
+      tag: ${{ steps.build.outputs.tag }}
 
   push-to-ECR:
     name: Push docker image to AWS ECR
