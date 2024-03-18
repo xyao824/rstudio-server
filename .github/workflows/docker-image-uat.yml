@@ -47,9 +47,9 @@ jobs:
         echo "Creating repository if not exist"
         aws ecr describe-repositories --repository-names ${{ env.REPO_NAME }} || aws ecr create-repository --repository-name ${{ env.REPO_NAME }}
         echo "Tagging the docker image"
-        docker tag ${tag} {{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/{{ env.REPO_NAME }}
+        docker tag ${tag} ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.REPO_NAME }}
         echo "Push to AWS ECR"
-        docker push {{ env.AWS_ACCOUNT_ID }}.dkr.ecr.{{ env.AWS_REGION }}.amazonaws.com/{{ env.PREO_NAME }}
+        docker push ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.PREO_NAME }}
       env:
         AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY }}
         AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_KEY }}
@@ -64,7 +64,7 @@ jobs:
     - name: Create task defination running in ECS
       run: |
        echo "Creating task defination"
-       aws ecs describe-task-definition --task-definition {{ env.TASK_NAME }}   || aws ecs register-task-definition --cli-input-json file://${GITHUB_WORKSPACE}/tasks/task_def.json
+       aws ecs describe-task-definition --task-definition ${{ env.TASK_NAME }}   || aws ecs register-task-definition --cli-input-json file://${GITHUB_WORKSPACE}/tasks/task_def.json
        echo "Finshing Successfully"
       
   
