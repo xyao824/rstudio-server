@@ -22,7 +22,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
-    - id: build
+      id: build
       run: |
         echo "start building docker image"
         timestamp=$(date +%s)
