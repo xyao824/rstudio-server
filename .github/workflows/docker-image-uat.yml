@@ -18,20 +18,21 @@ jobs:
   build-docker-image:
     name: Build docker image
     runs-on: ubuntu-latest
+
     outputs:
       tag: ${{ steps.build.outputs.tag }}
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Build the Docker image
-      id: build
-      run: |
-        echo "start building docker image"
-        timestamp=$(date +%s)
-        tag="rstudio-server:${timestamp}"
-        docker build . --file Dockerfile --tag ${tag}
-        {# echo "::set-output name=tag::${tag}" #}
-        echo "tag=${tag}" >> $GITHUB_OUTPUT
+      - uses: actions/checkout@v3
+      - name: Build the Docker image
+        id: build
+        run: |
+          echo "start building docker image"
+          timestamp=$(date +%s)
+          tag="rstudio-server:${timestamp}"
+          docker build . --file Dockerfile --tag ${tag}
+          echo "::set-output name=tag::${tag}"
+          echo "tag=${tag}" >> $GITHUB_OUTPUT
 
   push-to-ECR:
     name: Push docker image to AWS ECR
