@@ -43,7 +43,7 @@ jobs:
     - name: Push to AWS ECR
       run: |
         echo "Logging in to AWS ECR"
-        aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin {{ env.AWS_ACCOUNT_ID }}.dkr.ecr.{{ env.AWS_REGION }}.amazonaws.com
+        aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
         echo "Creating repository if not exist"
         aws ecr describe-repositories --repository-names ${{ env.REPO_NAME }} || aws ecr create-repository --repository-name ${{ env.REPO_NAME }}
         echo "Tagging the docker image"
