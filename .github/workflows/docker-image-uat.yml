@@ -31,7 +31,7 @@ jobs:
   push-to-ECR:
     name: Push docker image to AWC ECR
     needs: build-docker-image
-    runs-on: ubuntu-lastest
+    runs-on: ubuntu-latest
 
     steps:
     - name: Configure AWS credentials
@@ -54,7 +54,7 @@ jobs:
   create-task-defination:
     name: Create the task defination running in ECS
     needs: push-to-ECR
-    runs-on: ubuntu-lastest
+    runs-on: ubuntu-latest
 
     steps:
     - name: Create task defination running in ECS
