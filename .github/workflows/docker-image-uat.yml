@@ -15,30 +15,32 @@ jobs:
     name: Build docker image
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: Build the Docker image
-      run: |
-        echo "start building docker image"
-        timestamp=$(date +%s)
-        tag="rstudio-server:${timestamp}"
-        docker build . --file Dockerfile --tag ${tag}
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Build the Docker image
+        run: |
+          echo "start building docker image"
+          timestamp=$(date +%s)
+          tag="rstudio-server:${timestamp}"
+          docker build . --file Dockerfile --tag ${tag}
   push-to-ECR:
     name: Push docker image to AWC ECR
     needs: build-docker-image
     runs-on: ubuntu-lastest
     steps:
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-access-key-id: ${{ env.AWS_ACCESS_KEY }}
-        aws-secret-access-key: ${{ env.AWS_SECRET_KEY }}
-        aws-region: ${{ env.AWS_REGION }}
-    - name: Login to Amazon ECR
-      id: login-ecr-pf
-      uses: aws-actions/amazon-ecr-login@v2
-    - name: test
-      run: echo ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.REPO_NAME }}
+      - name: Checkout
+          uses: actions/checkout@v3
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ env.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ env.AWS_SECRET_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Login to Amazon ECR
+        id: login-ecr-pf
+        uses: aws-actions/amazon-ecr-login@v2
+      - name: test
+        run: echo ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.REPO_NAME }}
     # - name: Build & Push
     #   shell: bash
     #   env:
