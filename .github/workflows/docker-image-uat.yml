@@ -36,28 +36,20 @@ jobs:
           aws-access-key-id: ${{ env.AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ env.AWS_SECRET_KEY }}
           aws-region: ${{ env.AWS_REGION }}
+          mask-aws-account-id: false
       - name: Login to Amazon ECR
         id: login-ecr-pf
         uses: aws-actions/amazon-ecr-login@v2
-      - name: test
+      - name: Build & Push
+        shell: bash
+        env:
+          DOCKER_IMAGE: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.PREO_NAME }}
         run: |
-          echo ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.REPO_NAME }}
-    # - name: Build & Push
-    #   shell: bash
-    #   env:
-    #     DOCKER_IMAGE: ${{ env.AWS_ACCOUNT }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.AWS_REPOSITORY }}
-    #     SENTRY_RELEASE: ${{ env.SENTRY_PROJECT }}@${{ env.VERSION }}
-    #   working-directory: ${{ inputs.build-dir }}
-    #   run: |
-    #     docker build -t $DOCKER_IMAGE:${{ env.VERSION }} .
-    #     docker tag $DOCKER_IMAGE:${{ env.VERSION }} $DOCKER_IMAGE:latest
-    #     docker push $DOCKER_IMAGE --all-tags
-    #     echo "DOCKER_IMAGE=$DOCKER_IMAGE:${{ env.VERSION }}" >> $GITHUB_ENV
-    #     echo "DOCKER_IMAGE_LATEST=$DOCKER_IMAGE:latest" >> $GITHUB_ENV
-    #     echo "SENTRY_RELEASE=$SENTRY_RELEASE" >> $GITHUB_ENV
-    # - name: Logout of Amazon ECR
-    #   shell: bash
-    #   run: docker logout ${{ steps.login-ecr-pf.outputs.registry }}
+          docker tag ${{ needs.build-docker-image.outputs.tag }} $DOCKER_IMAGE:latest
+          docker push $DOCKER_IMAGE --all-tags
+    - name: Logout of Amazon ECR
+      shell: bash
+      run: docker logout ${{ steps.login-ecr-pf.outputs.registry }}
     # - name: Push to AWS ECR
     #   run: |
     #     echo "Creating repository if not exist"
@@ -66,15 +58,15 @@ jobs:
     #     docker tag ${tag} {{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.REPO_NAME }}
     #     echo "Push to AWS ECR"
     #     docker push {{ env.AWS_ACCOUNT_ID }}.dkr.ecr.{{ env.AWS_REGION }}.amazonaws.com/{{ env.PREO_NAME }}
-  # create-task-defination:
-  #   name: Create the task defination running in ECS
-  #   needs: push-to-ECR
-  #   runs-on: ubuntu-lastest
-  #   steps:
-  #   - name: Create task defination running in ECS
-  #     run: |
-  #      echo "Creating task defination"
-  #      aws ecs describe-task-definition --task-definition {{ env.TASK_NAME }}   || aws ecs register-task-definition --cli-input-json file://${GITHUB_WORKSPACE}/tasks/task_def.json
-  #      echo "Finshing Successfully"
+  create-task-defination:
+    name: Create the task defination running in ECS
+    needs: push-to-ECR
+    runs-on: ubuntu-lastest
+    steps:
+    - name: Create task defination running in ECS
+      run: |
+       echo "Creating task defination"
+       aws ecs describe-task-definition --task-definition {{ env.TASK_NAME }}   || aws ecs register-task-definition --cli-input-json file://${GITHUB_WORKSPACE}/tasks/task_def.json
+       echo "Finshing Successfully"
       
   
