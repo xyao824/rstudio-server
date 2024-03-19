@@ -47,17 +47,17 @@ jobs:
         run: |
           docker tag ${{ needs.build-docker-image.outputs.tag }} $DOCKER_IMAGE:latest
           docker push $DOCKER_IMAGE --all-tags
-    - name: Logout of Amazon ECR
-      shell: bash
-      run: docker logout ${{ steps.login-ecr-pf.outputs.registry }}
-    # - name: Push to AWS ECR
-    #   run: |
-    #     echo "Creating repository if not exist"
-    #     aws ecr describe-repositories --repository-names ${{ env.REPO_NAME }} || aws ecr create-repository --repository-name ${{ env.REPO_NAME }}
-    #     echo "Tagging the docker image"
-    #     docker tag ${tag} {{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.REPO_NAME }}
-    #     echo "Push to AWS ECR"
-    #     docker push {{ env.AWS_ACCOUNT_ID }}.dkr.ecr.{{ env.AWS_REGION }}.amazonaws.com/{{ env.PREO_NAME }}
+      - name: Logout of Amazon ECR
+        shell: bash
+        run: docker logout ${{ steps.login-ecr-pf.outputs.registry }}
+      # - name: Push to AWS ECR
+      #   run: |
+      #     echo "Creating repository if not exist"
+      #     aws ecr describe-repositories --repository-names ${{ env.REPO_NAME }} || aws ecr create-repository --repository-name ${{ env.REPO_NAME }}
+      #     echo "Tagging the docker image"
+      #     docker tag ${tag} {{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.REPO_NAME }}
+      #     echo "Push to AWS ECR"
+      #     docker push {{ env.AWS_ACCOUNT_ID }}.dkr.ecr.{{ env.AWS_REGION }}.amazonaws.com/{{ env.PREO_NAME }}
   create-task-defination:
     name: Create the task defination running in ECS
     needs: push-to-ECR
