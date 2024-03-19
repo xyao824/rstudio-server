@@ -52,7 +52,7 @@ jobs:
           REPOSITORY: ${{ env.REPO_NAME }}
           IMAGE_TAG: ${{ needs.build-docker-image.outputs.tag }}
         run: |
-          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
           # docker tag $DOCKER_IMAGE:${{ needs.build-docker-image.outputs.tag }} $DOCKER_IMAGE:latest
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
       - name: Logout of Amazon ECR
