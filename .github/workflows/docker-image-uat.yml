@@ -26,7 +26,7 @@ jobs:
   push-to-ECR:
     name: Push docker image to AWC ECR
     needs: build-docker-image
-    runs-on: ubuntu-lastest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -40,7 +40,8 @@ jobs:
         id: login-ecr-pf
         uses: aws-actions/amazon-ecr-login@v2
       - name: test
-        run: echo ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.REPO_NAME }}
+        run: |
+          echo ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.REPO_NAME }}
     # - name: Build & Push
     #   shell: bash
     #   env:
