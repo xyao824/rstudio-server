@@ -1,10 +1,8 @@
 name: Docker Image CI
-
 on:
   push:
     branches: [ "uat" ]
   workflow_dispatch:
-
 env:
   AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -12,67 +10,68 @@ env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   AWS_REGION: ap-southeast-2
   REPO_NAME: ${{ vars.REPO_NAME }}
-
 jobs:
-
   build-docker-image:
     name: Build docker image
     runs-on: ubuntu-latest
-
-    outputs:
-      tag: ${{ steps.build.outputs.tag }}
-
     steps:
-      - uses: actions/checkout@v3
-      - name: Build the Docker image
-        id: build
-        run: |
-          echo "start building docker image"
-          timestamp=$(date +%s)
-          tag="rstudio-server:${timestamp}"
-          docker build . --file Dockerfile --tag ${tag}
-          echo "::set-output name=tag::${tag}"
-          echo "tag=${tag}" >> $GITHUB_OUTPUT
-
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Build the Docker image
+      run: |
+        echo "start building docker image"
+        timestamp=$(date +%s)
+        tag = "rstudio-server:${timestamp}"
+        docker build . --file Dockerfile --tag ${tag}
   push-to-ECR:
-    name: Push docker image to AWS ECR
+    name: Push docker image to AWC ECR
     needs: build-docker-image
-    runs-on: ubuntu-latest
-
+    runs-on: ubuntu-lastest
     steps:
     - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v2
+      uses: aws-actions/configure-aws-credentials@v4
       with:
         aws-access-key-id: ${{ env.AWS_ACCESS_KEY }}
         aws-secret-access-key: ${{ env.AWS_SECRET_KEY }}
         aws-region: ${{ env.AWS_REGION }}
-    - name: Push to AWS ECR
-      run: |
-        echo "Logging in to AWS ECR"
-        aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
-        echo "Creating repository if not exist"
-        aws ecr describe-repositories --repository-names ${{ env.REPO_NAME }} || aws ecr create-repository --repository-name ${{ env.REPO_NAME }}
-        echo "Tagging the docker image"
-        echo "The tag is ${{ needs.build-docker-image.outputs.tag }}"
-        docker tag ${{ needs.build-docker-image.outputs.tag }} ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.REPO_NAME }}
-        echo "Push to AWS ECR"
-        docker push ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.REPO_NAME }}
-
-      env:
-        AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY }}
-        AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_KEY }}
-        AWS_DEFAULT_REGION: ${{ env.AWS_REGION }}
-        
-  create-task-defination:
-    name: Create the task defination running in ECS
-    needs: push-to-ECR
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Create task defination running in ECS
-      run: |
-       echo "Creating task defination"
-       aws ecs describe-task-definition --task-definition ${{ env.TASK_NAME }}   || aws ecs register-task-definition --cli-input-json file://${GITHUB_WORKSPACE}/tasks/task_def.json
-       echo "Finshing Successfully"
+    - name: Login to Amazon ECR
+      id: login-ecr-pf
+      uses: aws-actions/amazon-ecr-login@v2
+    - name: test
+      run: echo ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.REPO_NAME }}
+    # - name: Build & Push
+    #   shell: bash
+    #   env:
+    #     DOCKER_IMAGE: ${{ env.AWS_ACCOUNT }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.AWS_REPOSITORY }}
+    #     SENTRY_RELEASE: ${{ env.SENTRY_PROJECT }}@${{ env.VERSION }}
+    #   working-directory: ${{ inputs.build-dir }}
+    #   run: |
+    #     docker build -t $DOCKER_IMAGE:${{ env.VERSION }} .
+    #     docker tag $DOCKER_IMAGE:${{ env.VERSION }} $DOCKER_IMAGE:latest
+    #     docker push $DOCKER_IMAGE --all-tags
+    #     echo "DOCKER_IMAGE=$DOCKER_IMAGE:${{ env.VERSION }}" >> $GITHUB_ENV
+    #     echo "DOCKER_IMAGE_LATEST=$DOCKER_IMAGE:latest" >> $GITHUB_ENV
+    #     echo "SENTRY_RELEASE=$SENTRY_RELEASE" >> $GITHUB_ENV
+    # - name: Logout of Amazon ECR
+    #   shell: bash
+    #   run: docker logout ${{ steps.login-ecr-pf.outputs.registry }}
+    # - name: Push to AWS ECR
+    #   run: |
+    #     echo "Creating repository if not exist"
+    #     aws ecr describe-repositories --repository-names ${{ env.REPO_NAME }} || aws ecr create-repository --repository-name ${{ env.REPO_NAME }}
+    #     echo "Tagging the docker image"
+    #     docker tag ${tag} {{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.REPO_NAME }}
+    #     echo "Push to AWS ECR"
+    #     docker push {{ env.AWS_ACCOUNT_ID }}.dkr.ecr.{{ env.AWS_REGION }}.amazonaws.com/{{ env.PREO_NAME }}
+  # create-task-defination:
+  #   name: Create the task defination running in ECS
+  #   needs: push-to-ECR
+  #   runs-on: ubuntu-lastest
+  #   steps:
+  #   - name: Create task defination running in ECS
+  #     run: |
+  #      echo "Creating task defination"
+  #      aws ecs describe-task-definition --task-definition {{ env.TASK_NAME }}   || aws ecs register-task-definition --cli-input-json file://${GITHUB_WORKSPACE}/tasks/task_def.json
+  #      echo "Finshing Successfully"
       
   
