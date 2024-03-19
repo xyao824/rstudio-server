@@ -14,10 +14,14 @@ jobs:
   build-docker-image:
     name: Build docker image
     runs-on: ubuntu-latest
+    outputs:
+      tag:
+        value: ${{ steps.build.outputs.tag }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Build the Docker image
+        id: build
         run: |
           echo "start building docker image"
           timestamp=$(date +%s)
