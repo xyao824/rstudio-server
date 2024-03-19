@@ -27,6 +27,7 @@ jobs:
           timestamp=$(date +%s)
           tag="rstudio-server:${timestamp}"
           docker build . --file Dockerfile --tag ${tag}
+          echo "::set-output name=tag::${tag}"
           echo "tag=${tag}" >> $GITHUB_OUTPUT
   push-to-ECR:
     name: Push docker image to AWC ECR
