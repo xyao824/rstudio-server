@@ -62,14 +62,7 @@ jobs:
       - name: Logout of Amazon ECR
         shell: bash
         run: docker logout ${{ steps.login-ecr-pf.outputs.registry }}
-      # - name: Push to AWS ECR
-      #   run: |
-      #     echo "Creating repository if not exist"
-      #     aws ecr describe-repositories --repository-names ${{ env.REPO_NAME }} || aws ecr create-repository --repository-name ${{ env.REPO_NAME }}
-      #     echo "Tagging the docker image"
-      #     docker tag ${tag} {{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.REPO_NAME }}
-      #     echo "Push to AWS ECR"
-      #     docker push {{ env.AWS_ACCOUNT_ID }}.dkr.ecr.{{ env.AWS_REGION }}.amazonaws.com/{{ env.PREO_NAME }}
+
   create-task-defination:
     name: Create and deploy the service in ECS
     needs: push-to-ECR
