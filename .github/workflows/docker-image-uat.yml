@@ -11,21 +11,6 @@ env:
   AWS_REGION: ap-southeast-2
   REPO_NAME: ${{ vars.REPO_NAME }}
 jobs:
-  build-docker-image:
-    name: Build docker image
-    runs-on: ubuntu-latest
-    outputs:
-      tag: ${{ steps.build.outputs.tag }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Build the Docker image
-        id: build
-        run: |
-          echo "start building docker image"
-          tag=$(date +%s)
-          docker build . --file Dockerfile --tag ${tag}
-          echo "tag=${tag}" >> $GITHUB_OUTPUT
   push-to-ECR:
     name: Push docker image to AWC ECR
     needs: build-docker-image
@@ -52,7 +37,7 @@ jobs:
           # DOCKER_IMAGE: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.PREO_NAME }}
           REGISTRY: ${{ steps.login-ecr-pf.outputs.registry }}
           REPOSITORY: ${{ env.REPO_NAME }}
-          IMAGE_TAG: ${{ needs.build-docker-image.outputs.tag }}
+          IMAGE_TAG: $(date +%s)
         run: |
           echo $REGISTRY
           echo $REPOSITORY
