@@ -30,6 +30,8 @@ jobs:
     name: Push docker image to AWC ECR
     needs: build-docker-image
     runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.push-image.outputs.image }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -44,6 +46,7 @@ jobs:
         id: login-ecr-pf
         uses: aws-actions/amazon-ecr-login@v2
       - name: Build & Push
+        id: push-image
         shell: bash
         env:
           # DOCKER_IMAGE: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.PREO_NAME }}
@@ -55,6 +58,7 @@ jobs:
           echo $REPOSITORY
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+          echo "image=$REGISTRY/$REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
       - name: Logout of Amazon ECR
         shell: bash
         run: docker logout ${{ steps.login-ecr-pf.outputs.registry }}
@@ -67,14 +71,28 @@ jobs:
       #     echo "Push to AWS ECR"
       #     docker push {{ env.AWS_ACCOUNT_ID }}.dkr.ecr.{{ env.AWS_REGION }}.amazonaws.com/{{ env.PREO_NAME }}
   create-task-defination:
-    name: Create the task defination running in ECS
-    needs: push-to-ECR
-    runs-on: ubuntu-lastest
-    steps:
-    - name: Create task defination running in ECS
-      run: |
-       echo "Creating task defination"
-       aws ecs describe-task-definition --task-definition {{ env.TASK_NAME }}   || aws ecs register-task-definition --cli-input-json file://${GITHUB_WORKSPACE}/tasks/task_def.json
-       echo "Finshing Successfully"
+    - name: Create the task defination running in ECS
+      needs: push-to-ECR
+      id: task-def
+      uses: aws-actions/amazon-ecs-render-task-definition@v1
+      with:
+        task-definition: task_def.json
+        container-name: rstudio-server-container
+        image: ${{ needs.push-to-ECR.output.image }}
+    
+    - name: Delpoy to Amazon ECS service
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+      with:
+        task-definition: ${{ steps.push-to-ECR.outputs.task-definition }}
+        service: rstudio-server
+        cluster: rstudio-server
+    
+
+    # steps:
+    # - name: Create task defination running in ECS
+    #   run: |
+    #    echo "Creating task defination"
+    #    aws ecs describe-task-definition --task-definition {{ env.TASK_NAME }}   || aws ecs register-task-definition --cli-input-json file://${GITHUB_WORKSPACE}/tasks/task_def.json
+    #    echo "Finshing Successfully"
       
   
