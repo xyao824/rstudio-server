@@ -13,7 +13,6 @@ env:
 jobs:
   push-to-ECR:
     name: Push docker image to AWC ECR
-    needs: build-docker-image
     runs-on: ubuntu-latest
     outputs:
       image: ${{ steps.push-image.outputs.image }}
