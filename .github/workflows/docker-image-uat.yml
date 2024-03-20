@@ -36,7 +36,7 @@ jobs:
           # DOCKER_IMAGE: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.PREO_NAME }}
           REGISTRY: ${{ steps.login-ecr-pf.outputs.registry }}
           REPOSITORY: ${{ env.REPO_NAME }}
-          IMAGE_TAG: $(date +%s)
+          IMAGE_TAG: ${{ date +%s }}
         run: |
           echo $REGISTRY
           echo $REPOSITORY
