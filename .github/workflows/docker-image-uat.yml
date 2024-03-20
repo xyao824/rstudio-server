@@ -71,21 +71,21 @@ jobs:
       #     echo "Push to AWS ECR"
       #     docker push {{ env.AWS_ACCOUNT_ID }}.dkr.ecr.{{ env.AWS_REGION }}.amazonaws.com/{{ env.PREO_NAME }}
   create-task-defination:
-    - name: Create the task defination running in ECS
-      needs: push-to-ECR
-      id: task-def
-      uses: aws-actions/amazon-ecs-render-task-definition@v1
-      with:
-        task-definition: task_def.json
-        container-name: rstudio-server-container
-        image: ${{ needs.push-to-ECR.output.image }}
+    name: Create the task defination running in ECS
+    needs: push-to-ECR
+    id: task-def
+    uses: aws-actions/amazon-ecs-render-task-definition@v1
+    with:
+      task-definition: task_def.json
+      container-name: rstudio-server-container
+      image: ${{ needs.push-to-ECR.output.image }}
     
-    - name: Delpoy to Amazon ECS service
-      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-      with:
-        task-definition: ${{ steps.push-to-ECR.outputs.task-definition }}
-        service: rstudio-server
-        cluster: rstudio-server
+    name: Delpoy to Amazon ECS service
+    uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+    with:
+      task-definition: ${{ steps.push-to-ECR.outputs.task-definition }}
+      service: rstudio-server
+      cluster: rstudio-server
     
 
     # steps:
