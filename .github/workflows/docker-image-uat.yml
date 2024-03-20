@@ -11,7 +11,7 @@ env:
   AWS_REGION: ap-southeast-2
   REPO_NAME: ${{ vars.REPO_NAME }}
 jobs:
-  # build-docker-image:
+  build-docker-image:
     name: Build docker image
     runs-on: ubuntu-latest
     outputs:
