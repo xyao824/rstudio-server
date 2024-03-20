@@ -73,17 +73,17 @@ jobs:
         # uses: aws-actions/amazon-ecs-render-task-definition@v1
         run: |
           echo ${{ needs.push-to-ECR.outputs.image }}
-        with:
-          task-definition: task_def.json
-          container-name: rstudio-server-container
-          image: ${{ needs.push-to-ECR.outputs.image }}
+      #   with:
+      #     task-definition: task_def.json
+      #     container-name: rstudio-server-container
+      #     image: ${{ needs.push-to-ECR.outputs.image }}
 
-      - name: Deploy to Amazon ECS service
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: rstudio-server
-          cluster: rstudio-server
+      # - name: Deploy to Amazon ECS service
+      #   uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+      #   with:
+      #     task-definition: ${{ steps.task-def.outputs.task-definition }}
+      #     service: rstudio-server
+      #     cluster: rstudio-server
 
 
     # steps:
