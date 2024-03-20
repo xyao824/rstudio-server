@@ -78,6 +78,8 @@ jobs:
       - name: Create the task defination running in ECS
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
+        run: |
+          echo ${{ needs.push-to-ECR.outputs.image }}
         with:
           task-definition: task_def.json
           container-name: rstudio-server-container
