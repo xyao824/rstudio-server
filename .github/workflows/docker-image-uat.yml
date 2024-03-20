@@ -81,15 +81,15 @@ jobs:
         with:
           task-definition: task_def.json
           container-name: rstudio-server-container
-          image: ${{ needs.push-to-ECR.output.image }}
-    
-     - name: Delpoy to Amazon ECS service
+          image: ${{ needs.push-to-ECR.outputs.image }}
+
+      - name: Deploy to Amazon ECS service
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: ${{ steps.push-to-ECR.outputs.task-definition }}
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
           service: rstudio-server
           cluster: rstudio-server
-    
+
 
     # steps:
     # - name: Create task defination running in ECS
