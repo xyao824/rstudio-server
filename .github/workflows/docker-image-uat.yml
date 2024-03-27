@@ -10,6 +10,7 @@ env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   AWS_REGION: ap-southeast-2
   REPO_NAME: ${{ vars.REPO_NAME }}
+  ECS_TASK_DEFINITION: .tasks/task_def.json
 jobs:
   push-to-ECR:
     name: Push docker image to AWC ECR
@@ -33,7 +34,6 @@ jobs:
         id: push-image
         shell: bash
         env:
-          # DOCKER_IMAGE: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.PREO_NAME }}
           REGISTRY: ${{ steps.login-ecr-pf.outputs.registry }}
           REPOSITORY: ${{ env.REPO_NAME }}
           IMAGE_TAG: ${{ github.run_id }}
@@ -52,13 +52,11 @@ jobs:
     steps:
       - name: Create the task defination running in ECS
         id: task-def
-        # uses: aws-actions/amazon-ecs-render-task-definition@v1
-        run: |
-          echo ${{ needs.push-to-ECR.outputs.image }}
-      #   with:
-      #     task-definition: task_def.json
-      #     container-name: rstudio-server-container
-      #     image: ${{ needs.push-to-ECR.outputs.image }}
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ${{ env.ECS_TASK_DEFINITION }}
+          container-name: rstudio-server-container
+          image: ${{ needs.push-image.outputs.image }}
 
       # - name: Deploy to Amazon ECS service
       #   uses: aws-actions/amazon-ecs-deploy-task-definition@v1
